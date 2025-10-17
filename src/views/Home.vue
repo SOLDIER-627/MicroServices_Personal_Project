@@ -1,9 +1,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-// 导入搜索框组件
+// 搜索框组件
 import SearchBar from '../components/SearchBar.vue'
-// 导入游戏卡片组件
+// 游戏卡片组件
 import GameCard from '../components/GameCard.vue'
 import { getPopularGames } from '../api'
 
@@ -17,24 +17,25 @@ const loading = ref(false) // 加载状态
 // 获取热门游戏
 const fetchHotGames = async () => {
   try {
+    // 用于显示加载中
     loading.value = true
-    // 调用 API 获取热门游戏，增加数量到20个
-    const response = await getPopularGames(20)
+    // 调用，获取热门游戏
+    const response = await getPopularGames(20) // 这里要异步等待
     // 确保响应是数组
-    hotGames.value = Array.isArray(response) ? response : []
+    hotGames.value = Array.isArray(response) ? response : [] // 保证hotGames是数组
     console.log('获取到的热门游戏:', hotGames.value)
   } catch (error) {
     console.error('获取热门游戏失败:', error)
-    // 发生错误时设置为空数组
+    // 发生错误时设置为空
     hotGames.value = []
   } finally {
     loading.value = false
   }
 }
 
-// 处理搜索事件
+// 搜索游戏
 const handleSearch = (query) => {
-  // 跳转到游戏列表页并传递搜索关键词
+  // 跳转路由到Games，并传递搜索词
   router.push({ name: 'Games', query: { search: query } })
 }
 
@@ -46,31 +47,31 @@ onMounted(() => {
 
 <template>
   <div class="home">
-    <!-- 页面标题 -->
+    <!-- 标题 -->
     <div class="page-header">
-      <h1>欢迎来到 GameHub</h1>
-      <p>发现最新最热的游戏资讯和评价</p>
+      <h1>Welcome to GameHub</h1>
+      <p>Discover the latest and most popular games</p>
     </div>
     
     <!-- 搜索框 -->
     <div class="search-section">
-      <SearchBar @search="handleSearch" placeholder="搜索游戏..." />
+      <SearchBar @search="handleSearch" placeholder="Search for games..." />
     </div>
     
     <!-- 推荐内容 -->
     <div class="recommendation-section">
       <div class="section-header">
-        <h2>热门游戏推荐</h2>
+        <h2>Game Recommendation</h2>
       </div>
       
       <!-- 加载状态 -->
       <div v-if="loading" class="loading">
-        <p>正在加载热门游戏...</p>
+        <p>Loading...</p>
       </div>
       
       <!-- 无数据状态 -->
       <div v-else-if="hotGames.length === 0" class="no-data">
-        <p>暂无热门游戏数据</p>
+        <p>No game data available</p>
       </div>
       
       <!-- 游戏列表 -->
@@ -92,11 +93,12 @@ onMounted(() => {
   /* 添加背景图片 */
   background-image: url('../assets/home-background.jpg');
   background-size: cover;
-  background-position: center;
+  background-position: center top; /* 固定在顶部 */
   background-repeat: no-repeat;
+  background-attachment: fixed; /* 背景固定，不随内容滚动 */
   width: 100%;
   box-sizing: border-box;
-  min-height: calc(100vh - 100px); /* 确保背景覆盖整个可视区域 */
+  min-height: calc(100vh - 100px);
 }
 
 .page-header {
@@ -123,22 +125,9 @@ onMounted(() => {
 }
 
 .recommendation-section {
-  margin-top: 2rem;
-  background: rgba(255, 255, 255, 0.8); /* 半透明背景 */
-  padding: 2rem;
-  border-radius: 10px;
-  backdrop-filter: blur(5px); /* 毛玻璃效果 */
-}
-
-.section-header {
-  margin-bottom: 1.5rem;
-}
-
-.section-header h2 {
-  font-size: 1.8rem;
-  color: #2c3e50;
-  padding-left: 1rem;
-  border-left: 4px solid #3498db;
+  background: rgba(255, 255, 255, 0.5); /* 半透明 */
+  padding: 1rem;
+  backdrop-filter: blur(5px); /* 模糊 */
 }
 
 .loading, .no-data {
@@ -151,25 +140,5 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1.5rem;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .home {
-    padding: 1rem 0;
-  }
-  
-  .page-header h1 {
-    font-size: 2rem;
-  }
-  
-  .recommendation-section {
-    padding: 1rem;
-  }
-  
-  .games-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-  }
 }
 </style>

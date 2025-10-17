@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import axios from 'axios';
-import { createHash } from 'crypto';
 
 // 加载环境变量
 dotenv.config();

@@ -1,12 +1,9 @@
 <script setup>
-// 导入工具函数
-import { formatDate } from '../utils/format'
-
 // 定义组件属性
 const props = defineProps({
   game: {
-    type: Object,
-    required: true
+    type: Object, // 数据类型是对象
+    required: true // 游戏数据是必填项，父组件需要传递
   }
 })
 
@@ -21,7 +18,7 @@ const emit = defineEmits(['click'])
         :src="game.background_image" 
         :alt="game.name"
         class="game-image"
-        v-if="game.background_image"
+        v-if="game.background_image"  
         @error="($event) => {
           // 图片加载失败时的处理
           $event.target.style.display = 'none';
@@ -31,24 +28,13 @@ const emit = defineEmits(['click'])
       <div class="placeholder-image" v-show="!game.background_image || game.background_image === ''">
         <span>暂无图片</span>
       </div>
-      <div class="rating-badge" v-if="game.rating">
-        {{ game.rating.toFixed(1) }}
-      </div>
     </div>
     
     <div class="card-content">
       <h3 class="game-title">{{ game.name }}</h3>
-      
-      <div class="game-meta">
-        <div class="meta-item" v-if="game.released || game.first_release_date">
-          <i class="far fa-calendar"></i>
-          <span>{{ formatDate(game.released || game.first_release_date) }}</span>
-        </div>
-        
-        <div class="meta-item">
-          <i class="fas fa-gamepad"></i>
-          <span>{{ game.platforms?.length || 0 }} 个平台</span>
-        </div>
+      <div class="meta-item" v-if="game.released || game.first_release_date">
+        <i class="far fa-calendar"></i>
+        <span>{{ game.released || game.first_release_date }}</span>
       </div>
       
       <p class="game-description" v-if="game.summary || game.short_description">
@@ -67,8 +53,6 @@ const emit = defineEmits(['click'])
   transition: all 0.3s ease;
   cursor: pointer;
   height: 100%;
-  display: flex;
-  flex-direction: column;
 }
 
 .game-card:hover {
@@ -80,7 +64,7 @@ const emit = defineEmits(['click'])
   position: relative;
   height: 200px;
   overflow: hidden;
-  background-color: #f8f9fa; /* 添加背景色以防图片加载失败 */
+  background-color: #f8f9fa;
 }
 
 .game-image {
@@ -133,43 +117,17 @@ const emit = defineEmits(['click'])
   overflow: hidden;
 }
 
-.game-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-  color: #7f8c8d;
-}
-
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap:1 rem;
+  justify-content: center;
 }
 
 .game-description {
   color: #34495e;
   line-height: 1.6;
-  margin: 0;
+  margin: 0.5;
   flex: 1;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .card-image {
-    height: 150px;
-  }
-  
-  .card-content {
-    padding: 1rem;
-  }
-  
-  .game-title {
-    font-size: 1.1rem;
-  }
 }
 </style>

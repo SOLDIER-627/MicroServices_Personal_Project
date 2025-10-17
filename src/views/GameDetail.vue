@@ -1,8 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-// 导入工具函数
-import { formatDate } from '../utils/format'
 // 导入 API 方法
 import { getGameDetails, getGameScreenshots, getWikipediaGameInfo, getWikipediaGameImages } from '../api'
 
@@ -105,7 +103,7 @@ onMounted(() => {
           <div class="game-meta">
             <div class="meta-item">
               <span class="label">发行日期:</span>
-              <span class="value">{{ formatDate(game.released) || '未知' }}</span>
+              <span class="value">{{ game.released || '未知' }}</span>
             </div>
             
             <div class="meta-item" v-if="game.developers && game.developers.length > 0">

@@ -29,7 +29,7 @@ const routes = [
     path: '/game/:id',
     name: 'GameDetail',
     component: GameDetail,
-    props: true
+    props: true // 把参数以props的形式传递给组件
   },
   {
     path: '/videos',

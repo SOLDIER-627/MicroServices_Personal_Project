@@ -1,10 +1,10 @@
 <script setup>
-// 导入路由视图组件
+// 路由视图组件
 import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <!-- 应用的根容器 -->
+  <!-- 根容器 -->
   <div id="app">
     <!-- 导航栏 -->
     <nav class="navigation-bar">
@@ -16,24 +16,24 @@ import { RouterView } from 'vue-router'
         <!-- 导航菜单 -->
         <ul class="nav-menu">
           <li class="nav-item">
-            <router-link to="/" class="nav-link">首页</router-link>
+            <router-link to="/" class="nav-link">Home</router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/news" class="nav-link">新闻与资讯</router-link>
+            <router-link to="/games" class="nav-link">All Games</router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/games" class="nav-link">全部游戏</router-link>
+            <router-link to="/news" class="nav-link">News and Info</router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/videos" class="nav-link">游戏视频</router-link>
+            <router-link to="/videos" class="nav-link">Game Videos</router-link>
           </li>
         </ul>
       </div>
     </nav>
     
-    <!-- 页面内容区域 -->
+    <!-- 页面内容显示 -->
     <main class="main-content">
-      <!-- 路由视图组件，就是显示不同路由页面 -->
+      <!-- 路由视图组件，自动根据当前路由渲染组件 -->
       <RouterView />
     </main>
   </div>
@@ -95,27 +95,5 @@ import { RouterView } from 'vue-router'
 .main-content {
   width: 100%;
   min-height: calc(100vh - 120px);
-}
-
-/* 响应式设计，当过窄时候 */
-@media (max-width: 1024px) {
-  .nav-container {
-    flex-direction: column;
-    padding: 0 1rem;
-  }
-  
-  .nav-menu {
-    margin-top: 1rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  
-  .nav-item {
-    margin: 0.5rem 1rem;
-  }
-  
-  .main-content {
-    padding: 1rem;
-  }
 }
 </style>
