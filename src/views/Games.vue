@@ -7,9 +7,8 @@ import GameCard from '../components/GameCard.vue'
 // 导入 API 方法
 import { searchGames } from '../api'
 
-// 获取路由实例
-const route = useRoute() // 获取路由参数
-const router = useRouter() // 获取路由实例
+const route = useRoute() // 获取路由参数--获取信息
+const router = useRouter() // 获取路由实例--操作路由
 
 // 响应式数据
 const games = ref([]) // 游戏列表
@@ -24,7 +23,7 @@ const fetchGames = async () => {
     const response = await searchGames(searchQuery.value, 20)
     games.value = response || []
   } catch (error) {
-    console.error('获取游戏列表失败:', error)
+    console.error('Failed to retrieve the game list:', error)
     games.value = []
   } finally {
     loading.value = false
@@ -52,7 +51,7 @@ watch(
       games.value = []
     }
   },
-  { immediate: true }
+  { immediate: true } // 初始化时立即执行一次回调
 )
 
 // 组件挂载时获取游戏列表
@@ -70,26 +69,24 @@ onMounted(() => {
   <div class="games">
     <!-- 页面标题 -->
     <div class="page-header">
-      <h1>全部游戏</h1>
-      <p>浏览和搜索所有游戏</p>
+      <h1>All Games</h1>
+      <p>Browse and Search all available games</p>
     </div>
     
     <!-- 搜索区域 -->
-    <div class="filters-section">
-      <div class="search-container">
-        <SearchBar 
-          @search="handleSearch" 
-          :initial-value="searchQuery"
-          placeholder="搜索游戏..."
-        />
-      </div>
+    <div class="search-container">
+      <SearchBar 
+        @search="handleSearch" 
+        :initial-value="searchQuery"
+        placeholder="Search for games..."
+      />
     </div>
     
     <!-- 游戏列表 -->
     <div class="games-section">
       <!-- 加载状态 -->
       <div v-if="loading" class="loading">
-        <p>正在加载游戏...</p>
+        <p>Loading games...</p>
       </div>
       
       <!-- 结果统计 -->
@@ -109,7 +106,7 @@ onMounted(() => {
       
       <!-- 无结果 -->
       <div v-else-if="!loading && games.length === 0" class="no-results">
-        <p>没有找到相关游戏</p>
+        <p>No related games found</p>
       </div>
     </div>
   </div>
@@ -137,20 +134,17 @@ onMounted(() => {
   color: #7f8c8d;
 }
 
-.filters-section {
+.search-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 0 auto 2rem;
+  width: 100%;
 }
 
-.search-container {
-  flex: 1;
-  max-width: 500px;
+.search-container > * {
+  width: 100%;
+  max-width: 600px;
 }
 
 .games-section {

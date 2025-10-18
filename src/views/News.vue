@@ -30,15 +30,15 @@ onMounted(() => {
   <div class="news">
     <!-- 页面标题 -->
     <div class="page-header">
-      <h1>游戏新闻与资讯</h1>
-      <p>最新的游戏行业动态和资讯</p>
+      <h1>Game News and Information</h1>
+      <p>Latest gaming industry trends and information</p>
     </div>
     
     <!-- 新闻列表 -->
     <div class="news-section">
       <!-- 加载状态 -->
       <div v-if="loading" class="loading">
-        <p>正在加载新闻...</p>
+        <p>Loading...</p>
       </div>
       
       <!-- 新闻列表 -->

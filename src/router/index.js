@@ -40,7 +40,7 @@ const routes = [
 
 // 创建路由器实例
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(), // 历史模式
   routes
 })
 

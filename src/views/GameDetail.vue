@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 // 导入 API 方法
-import { getGameDetails, getGameScreenshots, getWikipediaGameInfo, getWikipediaGameImages } from '../api'
+import { getGameDetails, getWikipediaGameInfo, getWikipediaGameImages } from '../api'
 
 // 获取路由参数
 const route = useRoute()
@@ -19,7 +19,7 @@ const activeTab = ref('overview') // 当前活动标签页
 const fetchGameDetails = async () => {
   try {
     loading.value = true
-    const gameId = route.params.id
+    const gameId = route.params.id // route.params是路由的动态参数对象
     
     // 先获取游戏详情
     const detailsResponse = await getGameDetails(gameId).catch(error => {
@@ -33,7 +33,7 @@ const fetchGameDetails = async () => {
       return
     }
     
-    // 并行获取其他数据
+    // 使用Promise.all并行发起三个请求，三个独立请求
     const [screenshotsResponse, wikiInfoResponse, wikiImagesResponse] = await Promise.all([
       getGameScreenshots(gameId).catch(error => {
         console.error('获取游戏截图失败:', error)
@@ -78,7 +78,7 @@ onMounted(() => {
   <div class="game-detail">
     <!-- 加载状态 -->
     <div v-if="loading" class="loading">
-      <p>正在加载游戏详情...</p>
+      <p>Loading game details...</p>
     </div>
     
     <!-- 游戏详情内容 -->
@@ -93,31 +93,30 @@ onMounted(() => {
             v-if="game.background_image"
           >
           <div class="placeholder-cover" v-else>
-            <span>暂无图片</span>
+            <span>No image available</span>
           </div>
         </div>
         
         <div class="game-info">
           <h1 class="game-title">{{ game.name }}</h1>
-          
           <div class="game-meta">
             <div class="meta-item">
-              <span class="label">发行日期:</span>
-              <span class="value">{{ game.released || '未知' }}</span>
+              <span class="label">Release Date:</span>
+              <span class="value">{{ game.released || 'Unknown' }}</span>
             </div>
             
             <div class="meta-item" v-if="game.developers && game.developers.length > 0">
-              <span class="label">开发商:</span>
-              <span class="value">{{ game.developers[0].name || '未知' }}</span>
+              <span class="label">Developers:</span>
+              <span class="value">{{ game.developers[0].name || 'Unknown' }}</span>
             </div>
             
             <div class="meta-item" v-if="game.publishers && game.publishers.length > 0">
-              <span class="label">发行商:</span>
-              <span class="value">{{ game.publishers[0].name || '未知' }}</span>
+              <span class="label">Publishers:</span>
+              <span class="value">{{ game.publishers[0].name || 'Unknown' }}</span>
             </div>
             
             <div class="meta-item" v-if="game.platforms && game.platforms.length > 0">
-              <span class="label">平台:</span>
+              <span class="label">Platforms:</span>
               <div class="platforms">
                 <span 
                   v-for="platform in game.platforms" 
@@ -130,7 +129,7 @@ onMounted(() => {
             </div>
             
             <div class="meta-item" v-if="game.genres && game.genres.length > 0">
-              <span class="label">类型:</span>
+              <span class="label">Types:</span>
               <div class="genres">
                 <span 
                   v-for="genre in game.genres" 
@@ -151,14 +150,14 @@ onMounted(() => {
           :class="['tab', { active: activeTab === 'overview' }]"
           @click="activeTab = 'overview'"
         >
-          概览
+          Overview
         </button>
         <button 
           :class="['tab', { active: activeTab === 'screenshots' }]"
           @click="activeTab = 'screenshots'"
           v-if="screenshots.length > 0 || wikipediaImages.length > 0"
         >
-          图片
+          Images
         </button>
       </div>
       
@@ -166,15 +165,9 @@ onMounted(() => {
       <div class="tab-content">
         <!-- 概览 -->
         <div v-show="activeTab === 'overview'" class="tab-pane">
-          <!-- GiantBomb 游戏简介 -->
-          <div class="section" v-if="game.description_raw || game.summary">
-            <h2>游戏简介 (GiantBomb)</h2>
-            <p class="description">{{ formatDescription(game.description_raw || game.description || game.summary) }}</p>
-          </div>
-          
           <!-- 维基百科信息 -->
           <div class="section" v-if="wikipediaInfo">
-            <h2>相关信息 (维基百科)</h2>
+            <h2>Wikipedia</h2>
             <div class="wikipedia-content">
               <div class="wiki-thumbnail" v-if="wikipediaInfo.thumbnail">
                 <img :src="wikipediaInfo.thumbnail" :alt="wikipediaInfo.title" class="wiki-image">
@@ -182,18 +175,23 @@ onMounted(() => {
               <div class="wiki-text">
                 <p class="description">{{ wikipediaInfo.description || wikipediaInfo.extract }}</p>
                 <a :href="wikipediaInfo.pageUrl" target="_blank" class="wiki-link" v-if="wikipediaInfo.pageUrl">
-                  查看维基百科页面
+                  View Wikipedia page
                 </a>
               </div>
             </div>
           </div>
+
+          <!-- GiantBomb 游戏简介 -->
+          <div class="section" v-if="game.description_raw || game.summary">
+            <h2>Game Introduction(GiantBomb)</h2>
+            <p class="description">{{ formatDescription(game.description_raw || game.description || game.summary) }}</p>
+          </div>
           
           <!-- 详细信息 -->
           <div class="section" v-if="game.website">
-            <h2>详细信息</h2>
             <div class="details-grid">
               <div class="detail-item" v-if="game.website">
-                <span class="label">官方网站:</span>
+                <span class="label">GiantBomb website:</span>
                 <a :href="game.website" target="_blank" class="link">{{ game.website }}</a>
               </div>
             </div>
@@ -202,27 +200,9 @@ onMounted(() => {
         
         <!-- 图片 -->
         <div v-show="activeTab === 'screenshots'" class="tab-pane">
-          <!-- GiantBomb 截图 -->
-          <div class="section" v-if="screenshots.length > 0">
-            <h2>游戏截图 (GiantBomb)</h2>
-            <div class="media-grid">
-              <div 
-                v-for="screenshot in screenshots" 
-                :key="screenshot.id"
-                class="media-item"
-              >
-                <img 
-                  :src="screenshot.image" 
-                  :alt="`游戏截图 ${screenshot.id}`"
-                  class="screenshot"
-                >
-              </div>
-            </div>
-          </div>
-          
           <!-- 维基百科图片 -->
           <div class="section" v-if="wikipediaImages.length > 0">
-            <h2>相关图片 (维基百科)</h2>
+            <h2>From Wikipedia</h2>
             <div class="media-grid">
               <div 
                 v-for="(image, index) in wikipediaImages" 
@@ -246,7 +226,7 @@ onMounted(() => {
     
     <!-- 错误状态 -->
     <div v-else class="error">
-      <p>无法加载游戏详情</p>
+      <p>Failed to load game details</p>
     </div>
   </div>
 </template>
@@ -322,11 +302,12 @@ onMounted(() => {
 
 .meta-item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
 }
 
+
 .label {
-  font-weight: 600;
+  font-weight: 1000;
   width: 100px;
   color: #7f8c8d;
 }
@@ -340,6 +321,8 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  justify-content: center;
+  flex: 1; /* 使容器占据剩余空间 */
 }
 
 .platform, .genre {
@@ -347,7 +330,7 @@ onMounted(() => {
   color: white;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 /* 标签页 */
@@ -403,23 +386,12 @@ onMounted(() => {
   to { opacity: 1; }
 }
 
-.section {
-  margin-bottom: 3rem;
-}
-
-.section h2 {
-  font-size: 1.8rem;
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  color: #2c3e50;
-  border-left: 4px solid #3498db;
-  padding-left: 1rem;
-}
-
 .description {
   line-height: 1.8;
   color: #34495e;
   white-space: pre-wrap;
+  text-align: left;
+  text-indent: 2em;
 }
 
 /* 维基百科内容 */
@@ -427,21 +399,16 @@ onMounted(() => {
   display: flex;
   gap: 2rem;
   align-items: flex-start;
+  justify-content: flex-start;
 }
 
-.wiki-thumbnail {
-  flex-shrink: 0;
-}
+
 
 .wiki-image {
   width: 200px;
   height: auto;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.wiki-text {
-  flex: 1;
 }
 
 .wiki-link {
@@ -458,19 +425,19 @@ onMounted(() => {
 
 .details-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(1000px, 1fr));
   gap: 1.5rem;
 }
 
 .detail-item {
   display: flex;
-  padding: 1rem;
+  padding: 2rem;
   background: #f8f9fa;
   border-radius: 6px;
 }
 
 .detail-item .label {
-  width: 120px;
+  width: 250px;
   font-weight: 500;
 }
 
@@ -519,51 +486,5 @@ onMounted(() => {
   font-size: 0.9rem;
   color: #7f8c8d;
   line-height: 1.4;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .game-detail {
-    padding: 1rem 0;
-  }
-  
-  .game-header {
-    flex-direction: column;
-    padding: 1rem;
-  }
-  
-  .cover-container {
-    align-self: center;
-  }
-  
-  .game-cover, .placeholder-cover {
-    width: 250px;
-    height: 350px;
-  }
-  
-  .game-title {
-    font-size: 2rem;
-  }
-  
-  .tabs {
-    flex-direction: column;
-  }
-  
-  .tab {
-    padding: 0.75rem 1rem;
-  }
-  
-  .media-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .wikipedia-content {
-    flex-direction: column;
-  }
-  
-  .wiki-image {
-    width: 100%;
-    max-width: 300px;
-  }
 }
 </style>

@@ -20,7 +20,7 @@ const fetchHotGames = async () => {
     // 用于显示加载中
     loading.value = true
     // 调用，获取热门游戏
-    const response = await getPopularGames(20) // 这里要异步等待
+    const response = await getPopularGames(30) // 这里要异步等待
     // 确保响应是数组
     hotGames.value = Array.isArray(response) ? response : [] // 保证hotGames是数组
     console.log('获取到的热门游戏:', hotGames.value)

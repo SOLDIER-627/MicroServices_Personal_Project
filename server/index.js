@@ -16,7 +16,7 @@ app.use(cors());
 app.use(express.json());
 
 // 健康检查路由
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (res) => {
   res.json({ status: 'OK', message: '服务器运行正常' });
 });
 
@@ -60,7 +60,7 @@ app.use('/api/giantbomb', async (req, res) => {
       params: params,
       headers: {
         'User-Agent': 'GameHub/1.0 (https://gamehub.example.com)',
-        'Accept': 'application/json',  // 明确要求 JSON 格式
+        'Accept': 'application/json',
         'Content-Type': 'application/json'
       }
     });
@@ -105,6 +105,5 @@ app.use('/api/giantbomb', async (req, res) => {
 // 启动服务器
 app.listen(PORT, () => {
   console.log(`API服务器运行在端口 ${PORT}`);
-  console.log(`健康检查: http://localhost:${PORT}/api/health`);
   console.log(`GiantBomb API代理: http://localhost:${PORT}/api/giantbomb/`);
 });

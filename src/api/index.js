@@ -11,35 +11,8 @@ const giantbombApiClient = axios.create({
   }
 })
 
-// 添加响应拦截器用于调试
-giantbombApiClient.interceptors.response.use(
-  response => {
-    console.log('API响应:', response.config.url, response.status, response.data);
-    
-    // 检查响应内容类型
-    const contentType = response.headers['content-type'];
-    if (contentType && contentType.includes('application/xml')) {
-      console.warn('收到 XML 响应而不是 JSON');
-    }
-    
-    return response;
-  },
-  error => {
-    console.error('API错误:', error.config?.url, error.response?.status, error.response?.data);
-    
-    // 检查是否是 XML 错误响应
-    if (error.response && error.response.headers['content-type']?.includes('application/xml')) {
-      console.error('收到 XML 错误响应');
-    }
-    
-    return Promise.reject(error);
-  }
-);
-
 // 通用的游戏数据处理函数
 const processGameData = (game) => {
-  console.log(`处理游戏 "${game.name}" 的图片数据:`, game.image);
-  
   // 图片URL处理逻辑
   let imageUrl = null;
   if (game.image) {
@@ -72,19 +45,18 @@ const processGameData = (game) => {
   };
 };
 
-// 获取热门游戏 - 简化版本
-export const getPopularGames = async (limit = 20) => {
+// 获取热门游戏
+export const getPopularGames = async (limit = 30) => {
   try {
     console.log(`获取热门游戏，数量: ${limit}`);
     
-    // 直接使用游戏端点而不是搜索端点
     const response = await giantbombApiClient.get('/games', {
       params: {
-        format: 'json',  // 明确指定 JSON 格式
+        format: 'json',
         field_list: 'id,name,image,original_release_date,deck',
         limit: limit,
         sort: 'date_added:desc',  // 按添加日期排序获取最新游戏
-        filter: 'original_release_date:2020-01-01|2024-12-31'  // 过滤近年的游戏
+        filter: 'original_release_date:2015-01-01|2024-12-31'  // 过滤近年的游戏
       }
     });
     
@@ -111,7 +83,7 @@ export const getPopularGames = async (limit = 20) => {
   }
 };
 
-// 数组随机打乱函数
+// 随机打乱
 function shuffleArray(array) {
   const newArray = [...array];
   for (let i = newArray.length - 1; i > 0; i--) {
@@ -128,7 +100,7 @@ export const searchGames = async (searchTerm, limit = 20) => {
     
     const response = await giantbombApiClient.get('/search', {
       params: {
-        format: 'json',  // 明确指定 JSON 格式
+        format: 'json',
         query: searchTerm,
         resources: 'game',
         limit: limit,
@@ -200,7 +172,11 @@ export const getGameDetails = async (gameId) => {
       released: game.original_release_date,
       summary: game.deck,
       description: game.description,
-      description_raw: game.description ? game.description.replace(/<[^>]*>/g, '') : '',
+      description_raw: game.description ? 
+        (game.description.replace(/<[^>]*>/g, '').length > 5000 
+          ? game.description.replace(/<[^>]*>/g, '').substring(0, 5000) + '...' 
+          : game.description.replace(/<[^>]*>/g, '')) 
+        : '',
       genres: game.genres ? game.genres.map(genre => ({ id: genre.id, name: genre.name })) : [],
       platforms: game.platforms ? game.platforms.map(platform => ({ 
         platform: { 
@@ -260,77 +236,23 @@ export const getGameDetails = async (gameId) => {
   }
 }
 
-// 获取游戏截图
-export const getGameScreenshots = async (gameId, limit = 5) => {
-  try {
-    const response = await giantbombApiClient.get(`/game/${gameId}`, {
-      params: {
-        format: 'json',  // 明确要求 JSON 格式
-        field_list: 'screenshots'
-      }
-    });
-    
-    console.log('GiantBomb 游戏截图API响应:', response.data);
-    
-    // 修复响应检查逻辑
-    if (!response.data || response.data.error !== 'OK') {
-      console.warn('游戏截图API响应错误:', response.data?.error);
-      return { results: [] };
-    }
-    
-    if (!response.data.results) {
-      console.warn('游戏截图API返回空结果');
-      return { results: [] };
-    }
-    
-    const game = response.data.results;
-    
-    const screenshots = game.screenshots ? game.screenshots.slice(0, limit).map(screenshot => {
-      // 处理截图图片
-      let screenshotUrl = null;
-      if (screenshot.image) {
-        screenshotUrl = screenshot.image.medium_url || screenshot.image.small_url || screenshot.image.screen_url || null;
-        
-        // 修复协议问题
-        if (screenshotUrl && screenshotUrl.startsWith('//')) {
-          screenshotUrl = 'https:' + screenshotUrl;
-        }
-      }
-      
-      return {
-        id: screenshot.id,
-        image: screenshotUrl
-      };
-    }) : [];
-    
-    return {
-      results: screenshots
-    };
-  } catch (error) {
-    console.error('获取游戏截图失败:', error);
-    // 返回空数组而不是抛出错误
-    return { results: [] };
-  }
-}
-
 /* NewsApi */
 const newsApiClient = axios.create({
   baseURL: 'https://newsapi.org/v2',
   timeout: 10000
 })
 
-const NEWS_API_KEY = '42cd7124176e42bc8533622c11635fcc'
-const query = '(Steam游戏 OR PlayStation游戏 OR Xbox游戏 OR Switch游戏) AND (新闻 OR 发布) -棋牌'
-
+const NEWS_API_KEY = import.meta.env.VITE_NEWS_API_KEY
+const query = '(Steam OR PlayStation OR Xbox OR Switch) AND (game OR release OR news) -poker -chess'
 export const getNews = async () => {
   try {
     const response = await newsApiClient.get('/everything', {
       params: {
         q: query,
         apiKey: NEWS_API_KEY,
-        language: 'zh',
         sortBy: 'publishedAt',
-        pageSize: 30
+        pageSize: 30,
+        language: 'en'  // 设置语言为英文
       }
     })
     return response.data
@@ -341,13 +263,13 @@ export const getNews = async () => {
 }
 
 /* YouTube API */
-const YOUTUBE_API_KEY = 'AIzaSyAxaDL92jtahy33bDRH9SYtAds3czXSpMQ'
+const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY
 
 export const searchYoutubeVideos = async (keyword, pageToken = null, maxResults = 20) => {
   try {
     const params = {
       part: 'snippet',
-      q: keyword ? `${keyword} 游戏` : '游戏',
+      q: keyword ? `${keyword} Game` : 'Game',
       type: 'video',
       maxResults: maxResults,
       key: YOUTUBE_API_KEY,
@@ -393,7 +315,7 @@ export const getPopularGameVideos = async (limit = 20) => {
     const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
       params: {
         part: 'snippet',
-        q: '游戏',
+        q: 'Game',
         type: 'video',
         maxResults: limit,
         key: YOUTUBE_API_KEY,
@@ -425,8 +347,6 @@ export const getPopularGameVideos = async (limit = 20) => {
     throw error
   }
 }
-
-// ... existing code ...
 
 /* Wikipedia API */
 const wikipediaApiClient = axios.create({
@@ -504,7 +424,7 @@ export const getWikipediaGameInfo = async (gameName) => {
       extract: pageData.extract,
       thumbnail: pageData.thumbnail ? pageData.thumbnail.source : null,
       pageUrl: pageData.fullurl,
-      description: pageData.extract ? pageData.extract.substring(0, 500) + '...' : null
+      description: pageData.extract ? pageData.extract.substring(0, 5000) + '...' : null
     };
     
   } catch (error) {
