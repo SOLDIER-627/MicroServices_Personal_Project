@@ -1,4 +1,4 @@
-# GameHub - 一站式游戏平台
+# GameHub ———— 一站式游戏平台
 ## 项目简介
 
 GameHub是一个基于Vue 3 + Express的全栈游戏信息聚合平台，集成了多个第三方API，为用户提供全面的游戏信息、新闻资讯和视频内容。
@@ -49,7 +49,7 @@ pnpm dev
 
 ### 技术栈
 **前端技术栈：**
-- Vue 3 (Composition API + `<script setup>`)
+- Vue 3 (Composition API)
 - Vue Router 4 (单页面应用路由)
 - Vite (构建工具)
 - Axios (HTTP客户端)
@@ -61,13 +61,13 @@ pnpm dev
 ### 项目结构
 ```
 GameHub/
-├── src/                    # 前端源代码
-│   ├── components/        # 可复用组件
+├── src/                   # 前端源代码
+│   ├── components/        # 组件
 │   ├── views/             # 页面组件
 │   ├── router/            # 路由配置
 │   ├── api/               # API接口封装
 │   └── main.js            # 应用入口
-├── server/                 # 后端服务器
+├── server/                # 后端服务器
 │   └── index.js           # Express服务器
 └── package.json           # 项目配置
 ```
@@ -121,8 +121,6 @@ GameHub/
 
 ## 后端架构说明
 
-### 后端服务器代理
-
 GameHub采用后端服务器的主要原因是**解决CORS（跨域资源共享）限制**：
 
 **GiantBomb API的CORS限制**
@@ -130,22 +128,17 @@ GameHub采用后端服务器的主要原因是**解决CORS（跨域资源共享�
 - 后端服务器作为代理，转发API请求
 - 避免浏览器的同源策略限制
 
-
-### 后端代理架构
 ```
 前端(Vue) → 后端(Express) → GiantBomb API
         ↓
     其他API(直接调用)
 ```
 
-## 项目部署
+## 项目仓库
 
-### 构建生产版本
 ```bash
-# 构建前端静态文件
-pnpm build
+# 克隆到本地
+git clone https://github.com/SOLDIER-627/MicroServices_Personal_Project.git
 
-# 预览生产版本
-pnpm preview
 ```
         
