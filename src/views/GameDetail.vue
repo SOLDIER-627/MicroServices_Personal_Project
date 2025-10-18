@@ -9,7 +9,6 @@ const route = useRoute()
 
 // 响应式数据
 const game = ref(null) // 游戏详情
-const screenshots = ref([]) // 游戏截图
 const wikipediaInfo = ref(null) // 维基百科信息
 const wikipediaImages = ref([]) // 维基百科图片
 const loading = ref(true) // 加载状态
@@ -33,12 +32,8 @@ const fetchGameDetails = async () => {
       return
     }
     
-    // 使用Promise.all并行发起三个请求，三个独立请求
-    const [screenshotsResponse, wikiInfoResponse, wikiImagesResponse] = await Promise.all([
-      getGameScreenshots(gameId).catch(error => {
-        console.error('获取游戏截图失败:', error)
-        return { results: [] }
-      }),
+    // 使用Promise.all并行发起两个
+    const [wikiInfoResponse, wikiImagesResponse] = await Promise.all([
       getWikipediaGameInfo(detailsResponse.name).catch(error => {
         console.error('获取维基百科信息失败:', error)
         return null
@@ -50,7 +45,6 @@ const fetchGameDetails = async () => {
     ])
     
     game.value = detailsResponse
-    screenshots.value = screenshotsResponse.results || []
     wikipediaInfo.value = wikiInfoResponse
     wikipediaImages.value = wikiImagesResponse
     
@@ -155,7 +149,7 @@ onMounted(() => {
         <button 
           :class="['tab', { active: activeTab === 'screenshots' }]"
           @click="activeTab = 'screenshots'"
-          v-if="screenshots.length > 0 || wikipediaImages.length > 0"
+          v-if="wikipediaImages.length > 0"
         >
           Images
         </button>
