@@ -138,7 +138,7 @@ GameHub采用后端服务器的主要原因是**解决CORS（跨域资源共享�
 
 ```bash
 # 克隆到本地
-git clone https://github.com/SOLDIER-627/MicroServices_Personal_Project.git
+git clone https://github.com/SOLDIER-627/TJSE-Microservices-Personal-Project.git
 
 
 ```
